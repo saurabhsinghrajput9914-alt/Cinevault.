@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineVault – Movies Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --card: #16161f;
+    --accent: #e63946;
+    --accent2: #ff6b35;
+    --gold: #ffd60a;
+    --text: #f0f0f5;
+    --muted: #8888aa;
+    --border: #2a2a3a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-weight: 500; font-size: 0.9rem; letter-spacing: 1px;
+    text-transform: uppercase; transition: color 0.2s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--text); }
+  .search-box {
+    display: flex; align-items: center;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+  .search-box input {
+    background: none; border: none; outline: none;
+    padding: 0.5rem 1rem; color: var(--text); width: 220px;
+    font-family: 'Barlow', sans-serif; font-size: 0.9rem;
+  }
+  .search-box button {
+    background: var(--accent); border: none; cursor: pointer;
+    padding: 0.5rem 1rem; color: white; font-size: 1rem;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative; min-height: 420px;
+    display: flex; align-items: center;
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a0510 50%, #0a0a0f 100%);
+    overflow: hidden; padding: 3rem 2rem;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 60% 50%, rgba(230,57,70,0.15), transparent);
+  }
+  .hero-film-strip {
+    position: absolute; right: -10px; top: 0; bottom: 0; width: 45%;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; opacity: 0.25;
+    overflow: hidden;
+  }
+  .hero-film-strip div {
+    background: var(--bg3);
+    animation: slideUp 8s linear infinite;
+  }
+  .hero-film-strip div:nth-child(2) { animation-delay: -3s; }
+  .hero-film-strip div:nth-child(3) { animation-delay: -6s; }
+  @keyframes slideUp { 0%{transform:translateY(0)} 100%{transform:translateY(-50%)} }
+
+  .hero-content { position: relative; z-index: 2; max-width: 600px; }
+  .hero-badge {
+    display: inline-block; background: var(--accent);
+    padding: 0.25rem 0.75rem; border-radius: 4px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    line-height: 1; letter-spacing: 2px;
+    margin-bottom: 1rem;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 1.1rem; margin-bottom: 2rem; line-height: 1.6; }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn {
+    padding: 0.75rem 1.75rem; border-radius: 8px; border: none;
+    cursor: pointer; font-family: 'Barlow', sans-serif;
+    font-size: 0.95rem; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; transition: all 0.2s; display: inline-flex;
+    align-items: center; gap: 0.5rem; text-decoration: none;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #c1121f; transform: translateY(-2px); }
+  .btn-outline {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    display: flex; justify-content: center; gap: 4rem; padding: 1.25rem 2rem;
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; color: var(--accent); letter-spacing: 1px;
+  }
+  .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ── MAIN LAYOUT ── */
+  .main-wrap { display: flex; gap: 0; }
+  .sidebar {
+    width: 220px; min-width: 220px;
+    background: var(--bg2); border-right: 1px solid var(--border);
+    padding: 1.5rem 0; position: sticky; top: 64px;
+    height: calc(100vh - 64px); overflow-y: auto;
+  }
+  .sidebar-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted);
+    padding: 0 1.25rem; margin-bottom: 0.5rem;
+  }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.6rem 1.25rem; color: var(--muted); cursor: pointer;
+    font-size: 0.9rem; transition: all 0.2s; border-left: 3px solid transparent;
+  }
+  .sidebar-link:hover, .sidebar-link.active {
+    color: var(--text); background: var(--bg3);
+    border-left-color: var(--accent);
+  }
+  .sidebar-link .icon { font-size: 1.1rem; }
+  .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+  .content { flex: 1; padding: 2rem; overflow: hidden; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.3rem; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-title::before {
+    content: ''; display: block;
+    width: 4px; height: 1.2em; background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ── MOVIE GRID ── */
+  .movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1rem;
+  }
+  .movie-card {
+    background: var(--card); border-radius: 10px;
+    overflow: hidden; cursor: pointer;
+    border: 1px solid var(--border);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .movie-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 30px rgba(230,57,70,0.2);
+  }
+  .movie-thumb {
+    width: 100%; aspect-ratio: 2/3;
+    object-fit: cover; display: block;
+    background: var(--bg3);
+    position: relative; overflow: hidden;
+  }
+  .movie-thumb-placeholder {
+    width: 100%; aspect-ratio: 2/3;
+    background: linear-gradient(135deg, var(--bg3), #1a1a2e);
+    position: relative; overflow: hidden;
+  }
+  .movie-thumb-placeholder img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform 0.35s ease;
+  }
+  .movie-card:hover .movie-thumb-placeholder img {
+    transform: scale(1.06);
+  }
+  .movie-thumb-fallback {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 0.4rem;
+    font-size: 2.5rem; color: var(--muted);
+  }
+  .movie-thumb-fallback span { font-size: 0.7rem; color: var(--muted); }
+  .movie-overlay {
+    position: absolute; top: 0; left: 0; right: 0;
+    bottom: 60px; /* sits above the movie-info area */
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 55%);
+    opacity: 0; transition: opacity 0.25s;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0.75rem; z-index: 2;
+  }
+  .movie-card:hover .movie-overlay { opacity: 1; }
+  .movie-overlay-btns { display: flex; gap: 0.5rem; }
+  .overlay-btn {
+    padding: 0.4rem 0.8rem; border: none; border-radius: 6px;
+    font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    font-family: 'Barlow', sans-serif; letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+  .overlay-btn.download { background: var(--accent); color: white; }
+  .overlay-btn.info { background: rgba(255,255,255,0.15); color: white; }
+  .movie-badge {
+    position: absolute; top: 8px; left: 8px;
+    background: var(--accent); color: white;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 1px;
+    padding: 0.2rem 0.5rem; border-radius: 4px; text-transform: uppercase;
+  }
+  .movie-badge.hd { background: #2196F3; }
+  .movie-badge.new { background: #4caf50; }
+  .movie-info { padding: 0.75rem; }
+  .movie-title {
+    font-weight: 600; font-size: 0.9rem; line-height: 1.3;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .movie-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 0.35rem;
+  }
+  .movie-year { font-size: 0.78rem; color: var(--muted); }
+  .movie-rating {
+    font-size: 0.78rem; color: var(--gold);
+    display: flex; align-items: center; gap: 0.2rem;
+  }
+  .movie-size { font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
+
+  /* ── UPLOAD SECTION ── */
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: 12px;
+    padding: 3rem 2rem; text-align: center;
+    background: var(--bg2); transition: all 0.2s; cursor: pointer;
+    position: relative; overflow: hidden;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(230,57,70,0.05);
+  }
+  .upload-zone .upload-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+  .upload-zone h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem;
+  }
+  .upload-zone p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+  #fileInput { display: none; }
+
+  /* ── UPLOAD FORM ── */
+  .upload-form {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 2rem; margin-top: 1.5rem;
+    display: none;
+  }
+  .upload-form.show { display: block; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-group.full { grid-column: 1/-1; }
+  .form-label {
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .form-input, .form-select, .form-textarea {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.65rem 0.9rem;
+    color: var(--text); font-family: 'Barlow', sans-serif;
+    font-size: 0.9rem; outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--accent);
+  }
+  .form-select option { background: var(--bg3); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap { margin-top: 1rem; display: none; }
+  .progress-wrap.show { display: block; }
+  .progress-label { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; display: flex; justify-content: space-between; }
+  .progress-bar {
+    background: var(--bg3); border-radius: 100px; height: 8px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 100px; width: 0%; transition: width 0.1s;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    z-index: 1000; display: flex; align-items: center; justify-content: center;
+    padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; max-width: 520px; width: 100%;
+    overflow: hidden;
+    transform: translateY(20px); transition: transform 0.2s;
+  }
+  .modal-overlay.show .modal { transform: translateY(0); }
+  .modal-header {
+    padding: 1.5rem; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.3rem; font-weight: 700;
+  }
+  .modal-close {
+    background: none; border: none; color: var(--muted);
+    font-size: 1.5rem; cursor: pointer; line-height: 1;
+  }
+  .modal-body { padding: 1.5rem; }
+  .modal-poster {
+    width: 100%; aspect-ratio: 16/9; background: var(--bg3);
+    border-radius: 8px; margin-bottom: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; overflow: hidden;
+  }
+  .modal-poster img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-dl-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+  .dl-option {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.75rem 1rem;
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .dl-option:hover { border-color: var(--accent); }
+  .dl-option-info { display: flex; flex-direction: column; gap: 0.2rem; }
+  .dl-quality { font-weight: 700; font-size: 0.9rem; }
+  .dl-size { font-size: 0.78rem; color: var(--muted); }
+  .dl-btn {
+    background: var(--accent); color: white; border: none;
+    padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;
+    font-family: 'Barlow', sans-serif; font-weight: 600;
+    font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem;
+  }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block; background: var(--bg3); border: 1px solid var(--border);
+    padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem;
+    color: var(--muted); margin: 0.2rem;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-left: 4px solid var(--accent); border-radius: 8px;
+    padding: 1rem 1.5rem; font-size: 0.9rem;
+    transform: translateX(120%); transition: transform 0.3s;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-left-color: #4caf50; }
+
+  /* ── FILTER TABS ── */
+  .filter-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .filter-tab {
+    padding: 0.4rem 1rem; border-radius: 20px; border: 1px solid var(--border);
+    background: none; color: var(--muted); cursor: pointer;
+    font-family: 'Barlow', sans-serif; font-size: 0.85rem; font-weight: 500;
+    transition: all 0.2s;
+  }
+  .filter-tab:hover { border-color: var(--accent); color: var(--text); }
+  .filter-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 4rem 2rem; color: var(--muted);
+  }
+  .empty-state .empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+  .empty-state h3 { font-size: 1.2rem; color: var(--text); margin-bottom: 0.5rem; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ── PAGE SECTIONS ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.75; transform:scale(1.05); }
+  }
+  .featured-section {
+    background: linear-gradient(135deg, rgba(230,57,70,0.08), rgba(255,107,53,0.05));
+    border: 1px solid rgba(230,57,70,0.3);
+    border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .hero-film-strip { display: none; }
+    .form-grid { grid-template-columns: 1fr; }
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    .content { padding: 1rem; }
+    .stats-bar { gap: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="logo">🎬 CineVault</div>
+  <div class="nav-links">
+    <a href="#" class="active" onclick="showPage('home',this)">Home</a>
+    <a href="#" onclick="showPage('browse',this)">Browse</a>
+    <a href="#" onclick="showPage('upload',this)">Upload</a>
+    <a href="#" onclick="showPage('trending',this)">Trending</a>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Movie search karein..." oninput="searchMovies()">
+    <button onclick="searchMovies()">🔍</button>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero" id="heroSection">
+  <div class="hero-film-strip">
+    <div></div><div></div><div></div>
+    <div></div><div></div><div></div>
+  </div>
+  <div class="hero-content">
+    <span class="hero-badge">🔥 India's #1 Movie Hub</span>
+    <h1>Download <span>Latest</span><br>Movies Free</h1>
+    <p>Bollywood, Hollywood, South Indian aur Web Series – sab kuch ek jagah pe. HD quality mein download karein bilkul free!</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="showPage('browse', document.querySelector('[onclick*=browse]'))">🎬 Movies Browse Karein</button>
+      <button class="btn btn-outline" onclick="showPage('upload', document.querySelector('[onclick*=upload]'))">⬆️ Movie Upload Karein</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── STATS ── -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat"><div class="stat-num" id="totalMovies">0</div><div class="stat-label">Total Movies</div></div>
+  <div class="stat"><div class="stat-num">HD</div><div class="stat-label">Quality</div></div>
+  <div class="stat"><div class="stat-num">FREE</div><div class="stat-label">Download</div></div>
+  <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">Available</div></div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main-wrap">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Categories</div>
+    <div class="sidebar-link active" onclick="filterGenre('all',this)"><span class="icon">🎬</span> All Movies</div>
+    <div class="sidebar-link" onclick="filterGenre('Bollywood',this)"><span class="icon">🇮🇳</span> Bollywood</div>
+    <div class="sidebar-link" onclick="filterGenre('Hollywood',this)"><span class="icon">🇺🇸</span> Hollywood</div>
+    <div class="sidebar-link" onclick="filterGenre('South',this)"><span class="icon">🌴</span> South Indian</div>
+    <div class="sidebar-link" onclick="filterGenre('Web Series',this)"><span class="icon">📺</span> Web Series</div>
+    <div class="sidebar-link" onclick="filterGenre('Punjabi',this)"><span class="icon">🎵</span> Punjabi</div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-title">Quality</div>
+    <div class="sidebar-link" onclick="filterQuality('4K',this)"><span class="icon">✨</span> 4K UHD</div>
+    <div class="sidebar-link" onclick="filterQuality('1080p',this)"><span class="icon">🔵</span> 1080p Full HD</div>
+    <div class="sidebar-link" onclick="filterQuality('720p',this)"><span class="icon">🟢</span> 720p HD</div>
+    <div class="sidebar-link" onclick="filterQuality('480p',this)"><span class="icon">🟡</span> 480p</div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-title">Year</div>
+    <div class="sidebar-link" onclick="filterYear('2025',this)"><span class="icon">📅</span> 2025</div>
+    <div class="sidebar-link" onclick="filterYear('2024',this)"><span class="icon">📅</span> 2024</div>
+    <div class="sidebar-link" onclick="filterYear('2023',this)"><span class="icon">📅</span> 2023</div>
+  </aside>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="home">
+      <!-- FEATURED LATEST UPLOAD -->
+      <div class="featured-section">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem">
+          <div class="section-title" style="margin:0">⚡ Sabse Naya Upload</div>
+          <span style="background:var(--accent);color:white;font-size:0.65rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:4px;animation:pulse 1.5s infinite">LIVE</span>
+        </div>
+        <div id="featuredMovie"></div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">🎬 Baaki Movies</div>
+        <button class="btn btn-outline" style="font-size:0.8rem;padding:0.4rem 1rem" onclick="showPage('browse')">Sab Dekho</button>
+      </div>
+      <div class="movie-grid" id="homeGrid"></div>
+
+      <div style="height:2rem"></div>
+      <div class="section-header">
+        <div class="section-title">⭐ Top Rated</div>
+      </div>
+      <div class="movie-grid" id="topRatedGrid"></div>
+    </div>
+
+    <!-- BROWSE PAGE -->
+    <div class="page" id="browse">
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" onclick="filterBrowse('all',this)">All</button>
+        <button class="filter-tab" onclick="filterBrowse('Bollywood',this)">Bollywood</button>
+        <button class="filter-tab" onclick="filterBrowse('Hollywood',this)">Hollywood</button>
+        <button class="filter-tab" onclick="filterBrowse('South',this)">South Indian</button>
+        <button class="filter-tab" onclick="filterBrowse('Web Series',this)">Web Series</button>
+        <button class="filter-tab" onclick="filterBrowse('Punjabi',this)">Punjabi</button>
+      </div>
+      <div class="movie-grid" id="browseGrid"></div>
+    </div>
+
+    <!-- UPLOAD PAGE -->
+    <div class="page" id="upload">
+      <div class="section-header">
+        <div class="section-title">⬆️ Movie Upload Karein</div>
+      </div>
+
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('dragover')"
+           ondragleave="this.classList.remove('dragover')"
+           ondrop="handleDrop(event)">
+        <div class="upload-icon">🎬</div>
+        <h3>Movie File Yahan Drop Karein</h3>
+        <p>MP4, MKV, AVI, MOV files support hain • Max 50GB</p>
+        <button class="btn btn-primary" onclick="event.stopPropagation();document.getElementById('fileInput').click()">📁 File Choose Karein</button>
+        <input type="file" id="fileInput" accept="video/*,.mkv,.avi" onchange="handleFileSelect(event)">
+      </div>
+
+      <div class="upload-form" id="uploadForm">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+          <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:700">Movie Details Bharen</h3>
+          <span id="selectedFileName" style="font-size:0.85rem;color:var(--accent)"></span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Movie Ka Naam *</label>
+            <input type="text" class="form-input" id="movieName" placeholder="e.g. Pathaan 2023">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Saal (Year)</label>
+            <input type="number" class="form-input" id="movieYear" placeholder="2025" min="1950" max="2030">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Genre / Category</label>
+            <select class="form-select" id="movieGenre">
+              <option value="Bollywood">🇮🇳 Bollywood</option>
+              <option value="Hollywood">🇺🇸 Hollywood</option>
+              <option value="South">🌴 South Indian</option>
+              <option value="Web Series">📺 Web Series</option>
+              <option value="Punjabi">🎵 Punjabi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Quality</label>
+            <select class="form-select" id="movieQuality">
+              <option value="4K">4K UHD</option>
+              <option value="1080p" selected>1080p Full HD</option>
+              <option value="720p">720p HD</option>
+              <option value="480p">480p</option>
+              <option value="360p">360p</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rating (1–10)</label>
+            <input type="number" class="form-input" id="movieRating" placeholder="8.5" min="1" max="10" step="0.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Language</label>
+            <select class="form-select" id="movieLang">
+              <option value="Hindi">Hindi</option>
+              <option value="English">English</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Telugu">Telugu</option>
+              <option value="Punjabi">Punjabi</option>
+              <option value="Multi">Multi Audio</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Description (Optional)</label>
+            <textarea class="form-textarea" id="movieDesc" placeholder="Movie ke baare mein kuch batayein..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Poster URL (Optional)</label>
+            <input type="text" class="form-input" id="moviePoster" placeholder="https://... poster image URL">
+          </div>
+        </div>
+
+        <div class="progress-wrap" id="progressWrap">
+          <div class="progress-label">
+            <span>Uploading...</span>
+            <span id="progressPct">0%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+
+        <div style="display:flex;gap:1rem;margin-top:1.5rem">
+          <button class="btn btn-primary" onclick="submitUpload()">🚀 Upload Karein</button>
+          <button class="btn btn-outline" onclick="cancelUpload()">❌ Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRENDING PAGE -->
+    <div class="page" id="trending">
+      <div class="section-header">
+        <div class="section-title">🔥 Trending Movies</div>
+      </div>
+      <div class="movie-grid" id="trendingGrid"></div>
+    </div>
+
+    <!-- SEARCH RESULTS -->
+    <div class="page" id="search">
+      <div class="section-header">
+        <div class="section-title">🔍 Search Results</div>
+        <span id="searchResultCount" style="color:var(--muted);font-size:0.9rem"></span>
+      </div>
+      <div class="movie-grid" id="searchGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="movieModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Movie Name</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-poster" id="modalPoster">🎬</div>
+      <div id="modalMeta" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem"></div>
+      <p id="modalDesc" style="color:var(--muted);font-size:0.9rem;line-height:1.6;margin-bottom:1rem"></p>
+      <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.5rem;letter-spacing:1px;text-transform:uppercase">Download Options</div>
+      <div class="modal-dl-options" id="modalDLOptions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA STORE ──
+const BASE_TIME = Date.now();
+let movies = [
+  { id:1, title:"Pathaan", year:2023, genre:"Bollywood", quality:"4K", rating:7.8, lang:"Hindi", size:"4.2 GB", desc:"Shah Rukh Khan returns as RAW agent Pathaan in this action-packed thriller.", poster:"https://image.tmdb.org/t/p/w500/fQlbBMPunBmXdxbSW3iGXbfVqPc.jpg", badge:"4K", uploadedAt: BASE_TIME - 11*86400000 },
+  { id:2, title:"Animal", year:2023, genre:"Bollywood", quality:"1080p", rating:8.1, lang:"Hindi", size:"2.8 GB", desc:"Ranbir Kapoor stars in this intense crime drama about a son's obsession.", poster:"https://image.tmdb.org/t/p/w500/qFdGM7kWDFbptgPr2pA1N3OFuDh.jpg", badge:"HD", uploadedAt: BASE_TIME - 10*86400000 },
+  { id:3, title:"Jawan", year:2023, genre:"Bollywood", quality:"1080p", rating:7.9, lang:"Hindi", size:"3.1 GB", desc:"Shah Rukh Khan plays a dual role in this Atlee directorial.", poster:"https://image.tmdb.org/t/p/w500/lv6RbPOHdaGz6LTOHs4Bq7tFbAY.jpg", badge:"HD", uploadedAt: BASE_TIME - 9*86400000 },
+  { id:4, title:"Oppenheimer", year:2023, genre:"Hollywood", quality:"4K", rating:8.9, lang:"English", size:"5.5 GB", desc:"Christopher Nolan's masterpiece about the father of the atomic bomb.", poster:"https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg", badge:"4K", uploadedAt: BASE_TIME - 8*86400000 },
+  { id:5, title:"Guardians of the Galaxy Vol. 3", year:2023, genre:"Hollywood", quality:"1080p", rating:8.0, lang:"English", size:"3.8 GB", desc:"The Guardians embark on a mission to protect Rocket from his dark past.", poster:"https://image.tmdb.org/t/p/w500/r2J02Z2OpNTctfOSN1Ydgii51I3.jpg", badge:"HD", uploadedAt: BASE_TIME - 7*86400000 },
+  { id:6, title:"Leo", year:2023, genre:"South", quality:"1080p", rating:7.7, lang:"Tamil", size:"2.9 GB", desc:"Thalapathy Vijay in a high-octane action thriller.", poster:"https://image.tmdb.org/t/p/w500/7MqFqHMFkJQDwuiHkFIGKi25tP7.jpg", badge:"HD", uploadedAt: BASE_TIME - 6*86400000 },
+  { id:7, title:"Salaar", year:2023, genre:"South", quality:"720p", rating:7.5, lang:"Telugu", size:"1.8 GB", desc:"Prabhas leads this intense action drama.", poster:"https://image.tmdb.org/t/p/w500/qOMnpkiRb5ycPzQY3a0MqHNHKfZ.jpg", badge:"HD", uploadedAt: BASE_TIME - 5*86400000 },
+  { id:8, title:"Rocky Aur Rani Ki Prem Kahani", year:2023, genre:"Bollywood", quality:"720p", rating:7.3, lang:"Hindi", size:"1.7 GB", desc:"A love story with Ranveer Singh and Alia Bhatt.", poster:"https://image.tmdb.org/t/p/w500/yHqpB2WUaYlr5RJpXPGpUFWRfVJ.jpg", badge:"HD", uploadedAt: BASE_TIME - 4*86400000 },
+  { id:9, title:"Dunki", year:2023, genre:"Bollywood", quality:"1080p", rating:7.2, lang:"Hindi", size:"2.5 GB", desc:"Shah Rukh Khan and Taapsee Pannu in Rajkumar Hirani's heartwarming drama.", poster:"https://image.tmdb.org/t/p/w500/2fHjgvEzjwFgxeWWqmVJVOxWWLF.jpg", badge:"HD", uploadedAt: BASE_TIME - 3*86400000 },
+  { id:10, title:"KGF Chapter 2", year:2022, genre:"South", quality:"4K", rating:8.3, lang:"Kannada", size:"4.8 GB", desc:"Rocky's rise to power continues in this massive action epic.", poster:"https://image.tmdb.org/t/p/w500/4j8J8PJgA7goyDzqN6ogBMMZMCf.jpg", badge:"4K", uploadedAt: BASE_TIME - 2*86400000 },
+  { id:11, title:"Brahmastra", year:2022, genre:"Bollywood", quality:"1080p", rating:6.8, lang:"Hindi", size:"2.9 GB", desc:"Ranbir Kapoor wields the Brahmastra in this mythological fantasy.", poster:"https://image.tmdb.org/t/p/w500/3GrErBqNFH77EXf8mEgVCBxCcYm.jpg", badge:"HD", uploadedAt: BASE_TIME - 1*86400000 },
+  { id:12, title:"Avatar: The Way of Water", year:2022, genre:"Hollywood", quality:"4K", rating:7.9, lang:"English", size:"6.2 GB", desc:"Jake Sully and Neytiri fight to protect their family on Pandora.", poster:"https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg", badge:"4K", uploadedAt: BASE_TIME - 12*3600000 },
+];
+let nextId = 13;
+// Always sort newest upload first
+const byUpload = (a,b) => b.uploadedAt - a.uploadedAt;
+let currentPage = 'home';
+let currentGenreFilter = 'all';
+
+// ── HELPERS ──
+const $  = id => document.getElementById(id);
+const toast = (msg, type='') => {
+  const t = $('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3000);
+};
+
+function updateStats() {
+  $('totalMovies').textContent = movies.length.toLocaleString();
+}
+
+const GENRE_ICONS = { Bollywood:'🇮🇳', Hollywood:'🇺🇸', South:'🌴', 'Web Series':'📺', Punjabi:'🎵' };
+const BADGE_COLORS = { '4K':'#9c27b0', 'NEW':'#4caf50', 'HD':'#2196F3' };
+
+function movieCard(m) {
+  const badgeColor = BADGE_COLORS[m.badge] || 'var(--accent)';
+  const icon = GENRE_ICONS[m.genre] || '🎬';
+  const thumbHTML = m.poster
+    ? `<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    : '';
+  const fallbackDisplay = m.poster ? 'none' : 'flex';
+  return `
+  <div class="movie-card" onclick="openModal(${m.id})">
+    <div class="movie-thumb-placeholder">
+      ${thumbHTML}
+      <div class="movie-thumb-fallback" style="display:${fallbackDisplay}">
+        <span style="font-size:2.8rem">${icon}</span>
+        <span>${m.genre}</span>
+      </div>
+    </div>
+    <div class="movie-overlay">
+      <div class="movie-overlay-btns">
+        <button class="overlay-btn download" onclick="event.stopPropagation();quickDownload(${m.id})">⬇ Download</button>
+        <button class="overlay-btn info">ℹ Info</button>
+      </div>
+    </div>
+    <span class="movie-badge" style="background:${badgeColor}">${m.badge||m.quality}</span>
+    <div class="movie-info">
+      <div class="movie-title">${m.title}</div>
+      <div class="movie-meta">
+        <span class="movie-year">${m.year} • ${m.lang}</span>
+        <span class="movie-rating">⭐ ${m.rating}</span>
+      </div>
+      <div class="movie-size">📦 ${m.size}</div>
+    </div>
+  </div>`;
+}
+
+function renderGrid(gridId, list) {
+  const g = $(gridId);
+  if (!list.length) {
+    g.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">🎬</div>
+      <h3>Koi movie nahi mili</h3>
+      <p>Upload section mein nai movie add karein</p>
+    </div>`;
+    return;
+  }
+  g.innerHTML = list.map(movieCard).join('');
+}
+
+function timeAgo(ts) {
+  const s = Math.floor((Date.now()-ts)/1000);
+  if (s < 60) return 'Abhi abhi';
+  if (s < 3600) return Math.floor(s/60)+' min pehle';
+  if (s < 86400) return Math.floor(s/3600)+' ghante pehle';
+  return Math.floor(s/86400)+' din pehle';
+}
+
+function renderAll() {
+  updateStats();
+  const sorted = [...movies].sort(byUpload);
+  // Latest section – top 1 featured + next 7
+  const latest = sorted[0];
+  if (latest) renderFeatured(latest);
+  renderGrid('homeGrid', sorted.slice(1, 9));
+  const topRated = [...movies].sort((a,b) => b.rating - a.rating).slice(0,8);
+  renderGrid('topRatedGrid', topRated);
+  renderGrid('browseGrid', sorted);
+  const trending = [...movies].sort(() => Math.random()-0.5).slice(0,12);
+  renderGrid('trendingGrid', trending);
+}
+
+function renderFeatured(m) {
+  const el = $('featuredMovie');
+  if (!el) return;
+  const ago = timeAgo(m.uploadedAt);
+  el.innerHTML = `
+    <div style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap">
+      <div style="width:130px;min-width:130px;aspect-ratio:2/3;border-radius:10px;overflow:hidden;border:2px solid var(--accent);box-shadow:0 0 20px rgba(230,57,70,0.4)">
+        ${m.poster ? `<img src="${m.poster}" style="width:100%;height:100%;object-fit:cover">` : `<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:3rem">${GENRE_ICONS[m.genre]||'🎬'}</div>`}
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <span style="background:var(--accent);color:white;font-size:0.65rem;font-weight:800;padding:0.2rem 0.6rem;border-radius:4px;letter-spacing:2px;animation:pulse 1.5s infinite">🆕 NAYA UPLOAD</span>
+          <span style="color:var(--muted);font-size:0.8rem">${ago}</span>
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:700;line-height:1.1;margin-bottom:0.4rem">${m.title}</div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">
+          <span class="tag">📅 ${m.year}</span>
+          <span class="tag">🌍 ${m.lang}</span>
+          <span class="tag">🎭 ${m.genre}</span>
+          <span class="tag">⭐ ${m.rating}</span>
+          <span class="tag">📦 ${m.size}</span>
+        </div>
+        <p style="color:var(--muted);font-size:0.9rem;line-height:1.5;margin-bottom:1rem">${m.desc}</p>
+        <div style="display:flex;gap:0.75rem">
+          <button class="btn btn-primary" onclick="openModal(${m.id})">⬇️ Download Karein</button>
+          <button class="btn btn-outline" onclick="openModal(${m.id})" style="font-size:0.85rem">ℹ️ Details</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── PAGE NAVIGATION ──
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  $(id).classList.add('active');
+  currentPage = id;
+  const heroVis = id === 'home';
+  $('heroSection').style.display = heroVis ? '' : 'none';
+  $('statsBar').style.display = heroVis ? '' : 'none';
+  if (el) {
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    el.classList.add('active');
+  }
+  if (id === 'browse') renderGrid('browseGrid', [...movies].sort(byUpload));
+  if (id === 'trending') renderGrid('trendingGrid', [...movies].sort(()=>Math.random()-0.5).slice(0,12));
+}
+
+// ── FILTER ──
+function filterGenre(genre, el) {
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  showPage('browse');
+  const list = genre === 'all' ? movies : movies.filter(m => m.genre === genre);
+  renderGrid('browseGrid', [...list].sort(byUpload));
+}
+function filterQuality(q, el) {
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  showPage('browse');
+  renderGrid('browseGrid', movies.filter(m => m.quality === q));
+}
+function filterYear(y, el) {
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  showPage('browse');
+  renderGrid('browseGrid', movies.filter(m => m.year == y));
+}
+function filterBrowse(genre, el) {
+  document.querySelectorAll('#filterTabs .filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const list = genre === 'all' ? movies : movies.filter(m => m.genre === genre);
+  renderGrid('browseGrid', [...list].sort(byUpload));
+}
+
+// ── SEARCH ──
+function searchMovies() {
+  const q = $('searchInput').value.trim().toLowerCase();
+  if (!q) { if (currentPage === 'search') showPage('home'); return; }
+  const results = movies.filter(m =>
+    m.title.toLowerCase().includes(q) ||
+    m.genre.toLowerCase().includes(q) ||
+    m.lang.toLowerCase().includes(q)
+  );
+  showPage('search');
+  $('searchResultCount').textContent = `${results.length} movie${results.length!==1?'s':''} mili`;
+  renderGrid('searchGrid', results);
+}
+
+// ── UPLOAD ──
+let selectedFile = null;
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) { selectedFile = file; showUploadForm(file); }
+}
+function handleDrop(e) {
+  e.preventDefault();
+  $('uploadZone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) { selectedFile = file; showUploadForm(file); }
+}
+function showUploadForm(file) {
+  $('uploadForm').classList.add('show');
+  $('selectedFileName').textContent = '📁 ' + file.name;
+  const sizeMB = (file.size / (1024*1024)).toFixed(1);
+  const sizeStr = sizeMB > 1024 ? (sizeMB/1024).toFixed(1)+' GB' : sizeMB+' MB';
+  $('movieName').value = file.name.replace(/\.[^.]+$/,'').replace(/[._-]/g,' ');
+}
+function cancelUpload() {
+  $('uploadForm').classList.remove('show');
+  selectedFile = null; $('fileInput').value = '';
+  $('progressWrap').classList.remove('show');
+}
+function submitUpload() {
+  const name = $('movieName').value.trim();
+  if (!name) { toast('⚠️ Movie ka naam daalein!'); return; }
+  const pw = $('progressWrap'); pw.classList.add('show');
+  const fill = $('progressFill'); const pct = $('progressPct');
+  let p = 0;
+  const interval = setInterval(() => {
+    p += Math.random() * 15 + 5;
+    if (p >= 100) { p = 100; clearInterval(interval); finishUpload(); }
+    fill.style.width = p + '%';
+    pct.textContent = Math.floor(p) + '%';
+  }, 200);
+}
+function finishUpload() {
+  const sizeMB = selectedFile ? (selectedFile.size/(1024*1024)).toFixed(1) : '0';
+  const sizeStr = sizeMB > 1024 ? (sizeMB/1024).toFixed(1)+' GB' : sizeMB+' MB';
+  const newMovie = {
+    id: nextId++,
+    title: $('movieName').value.trim(),
+    year: parseInt($('movieYear').value) || new Date().getFullYear(),
+    genre: $('movieGenre').value,
+    quality: $('movieQuality').value,
+    rating: parseFloat($('movieRating').value) || 7.5,
+    lang: $('movieLang').value,
+    size: sizeStr,
+    desc: $('movieDesc').value || 'Ek behtareen movie.',
+    poster: $('moviePoster').value || '',
+    badge: 'NEW',
+    uploadedAt: Date.now()
+  };
+  movies.unshift(newMovie);
+  renderAll();
+  cancelUpload();
+  toast('✅ Movie successfully upload ho gayi!', 'success');
+  setTimeout(() => showPage('home', document.querySelector('[onclick*="home"]')), 800);
+}
+
+// ── MODAL ──
+function openModal(id) {
+  const m = movies.find(x => x.id === id);
+  if (!m) return;
+  $('modalTitle').textContent = m.title;
+  const p = $('modalPoster');
+  p.innerHTML = m.poster
+    ? `<img src="${m.poster}" style="width:100%;height:100%;object-fit:cover;border-radius:8px" onerror="this.parentElement.innerHTML='${GENRE_ICONS[m.genre]||'🎬'};this.parentElement.style.fontSize='4rem'">`
+    : `<span style="font-size:4rem">${GENRE_ICONS[m.genre]||'🎬'}</span>`;
+  $('modalMeta').innerHTML = [
+    `<span class="tag">📅 ${m.year}</span>`,
+    `<span class="tag">🌍 ${m.lang}</span>`,
+    `<span class="tag">🎭 ${m.genre}</span>`,
+    `<span class="tag">⭐ ${m.rating}/10</span>`,
+    `<span class="tag">📦 ${m.size}</span>`
+  ].join('');
+  $('modalDesc').textContent = m.desc;
+  const quals = ['4K', '1080p', '720p', '480p'];
+  const sizes = { '4K':'4.5 GB', '1080p':'2.1 GB', '720p':'1.2 GB', '480p':'600 MB' };
+  $('modalDLOptions').innerHTML = quals.map(q => `
+    <div class="dl-option">
+      <div class="dl-option-info">
+        <span class="dl-quality">🎬 ${q} ${q==='4K'?'Ultra HD':q==='1080p'?'Full HD':'HD'}</span>
+        <span class="dl-size">📦 ~${sizes[q]}</span>
+      </div>
+      <button class="dl-btn" onclick="downloadMovie(${m.id},'${q}')">⬇ Download</button>
+    </div>`).join('');
+  $('movieModal').classList.add('show');
+}
+function closeModal() { $('movieModal').classList.remove('show'); }
+
+function downloadMovie(id, quality) {
+  const m = movies.find(x => x.id === id);
+  closeModal();
+  toast(`⬇️ ${m.title} (${quality}) download shuru ho gaya!`, 'success');
+  // In real app: trigger actual file download
+}
+function quickDownload(id) {
+  const m = movies.find(x => x.id === id);
+  openModal(id);
+}
+
+// ── INIT ──
+renderAll();
+</script>
+</body>
+</html>
